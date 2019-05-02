@@ -1,0 +1,7 @@
+debug.log
+geckodriver.exe
+geckodriver.log
+run.bat
+.idea/
+__pycache__/
+config_original.py

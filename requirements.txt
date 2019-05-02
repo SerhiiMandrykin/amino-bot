@@ -1,0 +1,4 @@
+EasyProcess==0.2.5
+pyTelegramBotAPI==3.6.6
+selenium==3.141.0
+webdriver-manager==1.7
