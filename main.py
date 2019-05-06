@@ -75,6 +75,7 @@ tick = 0
 delay = 2
 checkedMessages = []
 iterations_ = 10
+checkedMessagesBuffer = 15
 while True:
     try:
         time.sleep(2)
@@ -117,7 +118,7 @@ while True:
 
             if message + author in checkedMessages:
                 print("No new messages")
-                continue
+                break
 
             is_clear = 1
             for i in range(len(pattern)):
@@ -134,12 +135,9 @@ while True:
                     time.sleep(0.4)
 
                     browser.find_element_by_class_name('send-button').click()
-                    break
-
+                    
             if is_clear == 1:
                 print("The message is clear")
-            else:
-                break
 
             if message.lower().find('бот') != -1 and message.lower().find('позови') != -1 and message.lower().find(
                     'админ') != -1:
@@ -157,6 +155,9 @@ while True:
                 bot.send_message(config.CHAT_ID, text__)
 
             checkedMessages.append(message + author)
+
+            if len(checkedMessages) > checkedMessagesBuffer:
+                del checkedMessages[0]
 
             j += 1
             k += -1
