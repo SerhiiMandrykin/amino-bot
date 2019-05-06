@@ -18,3 +18,6 @@ PASSWORD = "PASS"
 Можно найти div[data-url=AMINO_ID]
 """
 AMINO_CONFIG = '/c/KladovaiaBabuli/home/'
+
+enableBotTalking = False # Включить/выключить общение бота с участниками
+dialogflowProjectId = "ID" # id проекта в dailogflow
