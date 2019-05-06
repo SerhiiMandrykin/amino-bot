@@ -8,3 +8,4 @@ config_original.py
 AminoBot.py
 dict.txt
 venv/
+secret_key.json

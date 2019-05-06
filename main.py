@@ -5,6 +5,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 import time
 import re
 from dict import dictionary
+import functions
 
 # Не думаю, что нужно объяснять
 bot = telebot.TeleBot(config.BOT_TOKEN)
@@ -65,6 +66,8 @@ time.sleep(4)
 browser.switch_to.frame(browser.find_element_by_tag_name("iframe"))
 # browser.switch_to.default_content() - чтобы вернутся к основному контенту
 
+functions.remove_self_messages(browser)
+
 lastMessageAuthor = "null"
 textToUser = "Привет, {}. Ты, наверное, ещё не знаешь, но в нашем сообществе маты запрещены. Пожалуйста, не матерись больше. В ином случае мы будем вынуждены выдать тебе предупреждение, а в случае дальнейшего нарушения - бан."
 botText = "Замечен мат в чате!\n\nУчастник: {}\nТекст: {}"
@@ -72,6 +75,7 @@ botText = "Замечен мат в чате!\n\nУчастник: {}\nТекс�
 pattern = dictionary.split(',')
 
 tick = 0
+
 delay = 2
 checkedMessages = []
 iterations_ = 10
@@ -99,6 +103,8 @@ while True:
 
             if iterations_ != 0 and j >= iterations_:
                 break
+
+            functions.remove_self_messages(browser)
 
             message = messages[k].text
             author = authors[k].text
@@ -153,6 +159,16 @@ while True:
                 browser.find_element_by_class_name('send-button').click()
 
                 bot.send_message(config.CHAT_ID, text__)
+
+            if config.enableBotTalking and message.lower().find('бот') != -1:
+                message_ = message.lower().replace('бот', '')
+                tI = browser.find_element_by_class_name('text-input')
+                tI.click()
+                tI.send_keys(functions.detect_intent_texts(config.dialogflowProjectId, 'abcde', message_))
+
+                time.sleep(0.2)
+
+                browser.find_element_by_class_name('send-button').click()
 
             checkedMessages.append(message + author)
 
