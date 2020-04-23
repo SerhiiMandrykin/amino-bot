@@ -1,11 +1,5 @@
 debug.log
-geckodriver.exe
-geckodriver.log
-run.bat
 .idea/
 __pycache__/
-config_original.py
-AminoBot.py
-dict.txt
 venv/
-secret_key.json
+*.json
