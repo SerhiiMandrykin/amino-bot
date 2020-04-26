@@ -54,5 +54,6 @@ class MessageHandler(Callbacks):
 
         for i in self.selected_chats:
             if i.uid == thread_id and not ob.is_clear(message_text):
+                print(f"Пользователь {user_nickname} нарушает правила сообщества")
                 logging.info(f"Пользователь {user_nickname} нарушает правила сообщества")
                 i.send_text_message(self.warning_text.replace('{name}', user_nickname))

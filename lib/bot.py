@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 
 from amino.client import Client
@@ -28,6 +29,7 @@ class Bot:
                 config_file.close()
 
             print("Файл конфигурации успешно создан")
+            logging.info("Файл конфигурации успешно создан")
         else:
             with open(os.getcwd() + '/config.json') as config_file:
                 data = json.loads(config_file.read())
@@ -49,12 +51,16 @@ class Bot:
         """
 
         print("Пытаюсь войти в Амино...")
+        logging.info("Пытаюсь войти в Амино...")
         self.client.login(self.login, self.password)
         if self.client.authenticated:
             print("Авторизация прошла успешно")
+            logging.info("Авторизация прошла успешно")
         else:
             print("Ошибка авторизации! Проверьте правильно ли вы ввели данные")
+            logging.info("Ошибка авторизации! Проверьте правильно ли вы ввели данные")
             print("Удалите файл config.json для повторного ввода")
+            logging.info("Удалите файл config.json для повторного ввода")
             exit()
 
     def choose_amino(self):
@@ -75,6 +81,7 @@ class Bot:
         self.selected_amino = aminos[int(input("Выберите одно из амино: "))]
 
         print(f"Вы выбрали {self.selected_amino}")
+        logging.info(f"Вы выбрали {self.selected_amino}")
         print()
 
     def choose_chats(self):
@@ -96,3 +103,4 @@ class Bot:
             self.selected_chats.append(self.chats[int(i)])
 
             print("Начинаю мониторить чат " + self.chats[int(i)].title)
+            logging.info("Начинаю мониторить чат " + self.chats[int(i)].title)
