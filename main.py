@@ -1,15 +1,19 @@
 import logging
 import os
+
 import git
 
+import config
 from lib.bot import Bot
 
 # ----------------  Получение обновлений
-g = git.cmd.Git(os.getcwd())
-if g.pull() != 'Already up to date.':
-    print('Программа обновлена. Пожалуйста перезапустите скрипт')
-    print('Не забудьте выполнить команду pip install -r requirements.txt перед запуском')
-    exit()
+
+if config.ENABLE_AUTO_UPDATES:
+    g = git.cmd.Git(os.getcwd())
+    if g.pull() != 'Already up to date.':
+        print('Программа обновлена. Пожалуйста перезапустите скрипт')
+        print('Не забудьте выполнить команду pip install -r requirements.txt перед запуском')
+        exit()
 
 # ---------------- !Получение обновлений
 
