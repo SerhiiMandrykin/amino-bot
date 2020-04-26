@@ -16,7 +16,7 @@ if __name__ == '__main__':
 
     logging.basicConfig(filename=f"logs/log_{str(DIR_LEN + 1)}.txt", level=logging.INFO,
                         format='%(asctime)s %(message)s',
-                        datefmt='%m.%d.%Y %I:%M:%S')
+                        datefmt='%d.%m.%Y %I:%M:%S')
     print('STARTED')
     logging.info('STARTED')
     try:
