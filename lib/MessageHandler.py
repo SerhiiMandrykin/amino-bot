@@ -1,6 +1,8 @@
-from amino.community import Message
+import logging
+import os
+
 from amino.socket import Callbacks
-import json
+from lib.obscene import Obscene
 
 
 class MessageHandler(Callbacks):
@@ -32,7 +34,25 @@ class MessageHandler(Callbacks):
 
         self.selected_chats = selected_chats
 
+        with open(os.getcwd() + '/warning.txt', 'r', encoding='UTF-8') as warning_file:
+            self.warning_text = warning_file.read()
+            warning_file.close()
+
     def on_text_message(self, data):
-        print("Получено новое сообщение")
-        # self.message = Message(data, self.client)
-        # print(self.message.uid, self.message.content, self.message._author, self.message._thread_id)
+        data = data['o']['chatMessage']
+        user_id = data['author']['uid']
+        user_reputation = data['author']['reputation']
+        user_nickname = data['author']['nickname']
+        user_level = data['author']['level']
+        thread_id = data['threadId']
+        message_text = data['content']
+
+        if user_id == self.client.uid:
+            return True
+
+        ob = Obscene()
+
+        for i in self.selected_chats:
+            if i.uid == thread_id and not ob.is_clear(message_text):
+                logging.info(f"Пользователь {user_nickname} нарушает правила сообщества")
+                i.send_text_message(self.warning_text.replace('{name}', user_nickname))

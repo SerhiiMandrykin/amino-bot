@@ -96,5 +96,3 @@ class Bot:
             self.selected_chats.append(self.chats[int(i)])
 
             print("Начинаю мониторить чат " + self.chats[int(i)].title)
-
-            self.chats[int(i)].send_text_message("Привет. Я буду следить за этим чатом ))")

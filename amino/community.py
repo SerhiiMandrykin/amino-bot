@@ -226,13 +226,13 @@ class Message:
 
     def __init__(self, data, client):
         self.client = client
-        self.uid = data["messageId"]
-        self.created = data["createdTime"]
-        self.content = data["content"]
+        self.uid = data["chatMessage"]["messageId"]
+        self.created = data["chatMessage"]["createdTime"]
+        self.content = data["chatMessage"]["content"]
 
-        self._community_id = data["author"]["ndcId"]
-        self._author = data["author"]
-        self._thread_id = data["threadId"]
+        self._community_id = data["ndcId"]
+        self._author = data["chatMessage"]["author"]
+        self._thread_id = data["chatMessage"]["threadId"]
 
     @property
     def community(self):
