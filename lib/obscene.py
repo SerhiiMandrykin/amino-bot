@@ -27,13 +27,14 @@ class Obscene:
 
         patterns = [
             r'пош(е|ё)л\s?(т(ы|и))?\s?на',
+            r'бл(е)?(я|а)+т',
         ]
 
         for i in patterns:
-            if re.match(i, text, flags=re.IGNORECASE | re.UNICODE):
+            if re.search(i, text, flags=re.IGNORECASE | re.UNICODE):
                 return False
 
-        if re.match(obscene_pattern, text, flags=re.IGNORECASE | re.UNICODE) and not re.match(
+        if re.search(obscene_pattern, text, flags=re.IGNORECASE | re.UNICODE) and not re.search(
                 non_obscene_pattern, text, flags=re.IGNORECASE | re.UNICODE):
             return False
 
