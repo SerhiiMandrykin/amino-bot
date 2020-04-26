@@ -25,7 +25,7 @@ class Bot:
             self.password = input("Введите ваш пароль: ")
 
             with open(os.getcwd() + '/config.json', 'w', encoding='UTF-8') as config_file:
-                config_file.write(json.dumps({'login': login, 'password': password}))
+                config_file.write(json.dumps({'login': self.login, 'password': self.password}))
                 config_file.close()
 
             print("Файл конфигурации успешно создан")
