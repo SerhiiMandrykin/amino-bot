@@ -2,11 +2,14 @@ certifi==2020.4.5.1
 cffi==1.14.0
 chardet==3.0.4
 gevent==20.4.0
+gitdb==4.0.4
+GitPython==3.1.1
 greenlet==0.4.15
 idna==2.9
 pycparser==2.20
 requests==2.23.0
 six==1.14.0
+smmap==3.0.2
 urllib3==1.25.9
 websocket==0.2.1
 websocket-client==0.57.0
