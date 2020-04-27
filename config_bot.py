@@ -24,8 +24,6 @@ def main():
 
     @bot.message_handler(commands=['use_this_chat'])
     def use_chat(message):
-        bot_config = {'chat_id': message.chat.id}
-
         with open(os.getcwd() + '/config.json', 'r') as config_file:
             current_config = json.loads(config_file.read())
             current_config['chat_id'] = message.chat.id
