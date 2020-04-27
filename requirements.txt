@@ -7,6 +7,7 @@ GitPython==3.1.1
 greenlet==0.4.15
 idna==2.9
 pycparser==2.20
+pyTelegramBotAPI==3.6.7
 requests==2.23.0
 six==1.14.0
 smmap==3.0.2
