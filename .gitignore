@@ -5,3 +5,4 @@ venv/
 *.json
 logs/*.txt
 test.py
+warning.txt
