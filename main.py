@@ -1,6 +1,5 @@
 import logging
 import os
-import subprocess
 
 import git
 
@@ -45,9 +44,11 @@ if __name__ == '__main__':
 
     DIR_LEN = len([name for name in os.listdir(DIR_LOGS) if os.path.isfile(os.path.join(DIR_LOGS, name))])
 
-    logging.basicConfig(filename=f"logs/log_{str(DIR_LEN + 1)}.txt", level=logging.INFO,
-                        format='%(asctime)s %(message)s',
-                        datefmt='%d.%m.%Y %I:%M:%S')
+    logging.basicConfig(
+        handlers=[logging.FileHandler(f"logs/log_{str(DIR_LEN + 1)}.txt", 'w', 'utf-8')],
+        level=logging.INFO,
+        format='%(asctime)s %(message)s',
+        datefmt='%d.%m.%Y %I:%M:%S')
     print('STARTED')
     logging.info('STARTED')
     try:
