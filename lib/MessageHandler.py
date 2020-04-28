@@ -1,8 +1,9 @@
 import os
 
+import lib.warning as warning
 from amino.socket import Callbacks
-from lib.obscene import Obscene
 from lib.logger import log
+from lib.obscene import Obscene
 
 
 class MessageHandler(Callbacks):
@@ -54,5 +55,6 @@ class MessageHandler(Callbacks):
 
         for i in self.selected_chats:
             if i.uid == thread_id and not ob.is_clear(message_text):
-                log(f"Пользователь {user_nickname} нарушает правила сообщества в чате {i.title}")
-                i.send_text_message(self.warning_text.replace('{name}', user_nickname))
+                user_warnings = warning.add(user_id)
+                log(f"Пользователь {user_nickname} ({user_warnings}) нарушает правила сообщества в чате {i.title}.")
+                i.send_text_message(self.warning_text.replace('{name}', user_nickname).replace('{warnings}', str(user_warnings)))
