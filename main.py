@@ -49,6 +49,7 @@ if __name__ == '__main__':
         level=logging.INFO,
         format='%(asctime)s %(message)s',
         datefmt='%d.%m.%Y %I:%M:%S')
+
     print('STARTED')
     logging.info('STARTED')
     try:

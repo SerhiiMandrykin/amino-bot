@@ -6,3 +6,4 @@ venv/
 logs/*.txt
 test.py
 warning.txt
+*.bat
