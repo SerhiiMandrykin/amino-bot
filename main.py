@@ -1,5 +1,6 @@
 import logging
 import os
+import subprocess
 
 import git
 
@@ -10,9 +11,25 @@ from lib.bot import Bot
 
 if config.ENABLE_AUTO_UPDATES:
     g = git.cmd.Git(os.getcwd())
-    if g.pull() != 'Already up to date.':
-        print('Программа обновлена. Пожалуйста перезапустите скрипт')
-        print('Не забудьте выполнить команду pip install -r requirements.txt перед запуском')
+    try:
+        if g.pull('--rebase') != 'Already up to date.':
+            print('Программа обновлена. Пожалуйста перезапустите скрипт')
+            print('Не забудьте выполнить команду pip install -r requirements.txt перед запуском')
+            exit()
+    except git.GitCommandError:
+
+        new_path = os.path.dirname(os.getcwd())
+        new_dir = new_path + '/amino-bot_NEW'
+        if not os.path.exists(new_dir):
+            os.mkdir(new_dir)
+
+        git.Git(new_dir).clone("https://github.com/ManKwang/amino-bot.git")
+
+        print('Репозиторий был клонирован в новую папку: ' + new_dir)
+        print('Используйте эту папку для работы с ботом')
+
+        os.startfile(new_dir + '/amino-bot')
+
         exit()
 
 # ---------------- !Получение обновлений
