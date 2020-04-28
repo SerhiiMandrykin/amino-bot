@@ -12,7 +12,7 @@ from lib.bot import Bot
 if config.ENABLE_AUTO_UPDATES:
     g = git.cmd.Git(os.getcwd())
     try:
-        if g.pull('--rebase') != 'Already up to date.':
+        if g.pull() != 'Already up to date.':
             print('Программа обновлена. Пожалуйста перезапустите скрипт')
             print('Не забудьте выполнить команду pip install -r requirements.txt перед запуском')
             exit()
