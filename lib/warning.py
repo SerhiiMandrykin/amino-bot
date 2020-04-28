@@ -3,6 +3,9 @@ import os
 
 
 def add(uid):
+    """
+    Adds a warning to user
+    """
     data_file_path = os.getcwd() + '/users_data.json'
 
     if not os.path.exists(data_file_path):
