@@ -11,7 +11,7 @@ from lib.objects import *
 
 class SubClient:
     """
-    Класс, содержащий фукнции для осуществления действий внутри определённого сообщества, ndcId которого указывается в аргументах конструктора
+    Class contains actions inside a specific community
     """
 
     def __init__(self, communityId=None):

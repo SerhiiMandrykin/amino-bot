@@ -1,6 +1,6 @@
 class Communities:
     """
-    Объект списка сообществ, возвращаемый функцией получить_мои_сообщества(...)
+    Class contains list of communities
     """
 
     def __init__(self, communities):
@@ -29,7 +29,7 @@ class Community:
 
 class Chats:
     """
-    Объект списка чатов, возвращаемый функцией получить_мои_комнаты(...)
+    Class contains list of chats
     """
 
     def __init__(self, chats):
@@ -58,7 +58,7 @@ class Chat:
 
 class Users:
     """
-    Объект списка пользователей, возвращаемый функцией получить_пользователей_в_сети(...)
+    Class contains list of users
     """
 
     def __init__(self, users):
