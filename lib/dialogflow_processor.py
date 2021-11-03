@@ -1,9 +1,15 @@
 import os
+from typing import NamedTuple
 
 from google.cloud import dialogflow_v2 as dialogflow
 from google.oauth2.service_account import Credentials
 
 from lib.exceptions import NoDialogflowCredentialsFileFound
+
+
+class DialogflowResponse(NamedTuple):
+    response_text: str
+    intent: str
 
 
 class ChatClient:
@@ -33,4 +39,5 @@ class ChatClient:
             request={"session": session, "query_input": query_input}
         )
 
-        return response.query_result.fulfillment_text
+        return DialogflowResponse(response_text=response.query_result.fulfillment_text,
+                                  intent=response.query_result.intent.display_name)

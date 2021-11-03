@@ -1,6 +1,8 @@
+import asyncio
 import json
 import random
 import string
+import time
 
 import aiohttp
 
@@ -27,6 +29,8 @@ class Client:
         self.allowed_chats = []
         self.allowed_communities = []
         self.chat_client = ChatClient('bts-amino-umty')
+        self.time_delay = 5  # delay in seconds for sending messages
+        self.last_action_time = 0
 
     def get_captcha(self):
         captcha = "".join(random.choices(string.ascii_uppercase + string.ascii_lowercase + "_-", k=462)).replace("--",
@@ -42,15 +46,29 @@ class Client:
 
         chat_message = Message.parse_message(response['o']['chatMessage'])
         if chat_message.from_id == self.self_id or community_id not in self.allowed_communities \
-                or chat_message.chat_id not in self.allowed_chats or not chat_message.message_text.startswith('!'):
+                or chat_message.chat_id not in self.allowed_chats:
             return
 
-        response_text = self.chat_client.get_response(chat_message.from_id, chat_message.message_text)
-        chat_message.message_text = chat_message.message_text[1:]
-        if not response_text:
-            response_text = 'Не поняв. А це шо таке!?'
+        chat_message.message_text = chat_message.message_text.strip()
+        has_trigger = chat_message.message_text.startswith('!')
+        chat_message.message_text = chat_message.message_text.replace('!', '').replace('-', '')
 
-        await self.send_message(community_id=community_id, room_id=chat_message.chat_id, text=response_text)
+        dialogflow_response = self.chat_client.get_response(chat_message.from_id, chat_message.message_text)
+
+        allowed_intents = ['obscene.warning']
+        if dialogflow_response.intent not in allowed_intents and not has_trigger:
+            return
+
+        time_diff = time.time() - self.last_action_time
+        print('Time diff is ' + str(int(time_diff)) + ' seconds')
+        if time_diff < self.time_delay:
+            print('Waiting for ' + str(self.time_delay - time_diff) + ' seconds')
+            await asyncio.sleep(self.time_delay - time_diff)
+
+        self.last_action_time = time.time()
+
+        await self.send_message(community_id=community_id, room_id=chat_message.chat_id,
+                                text=dialogflow_response.response_text)
 
     async def login(self, email, password):
         data = {
