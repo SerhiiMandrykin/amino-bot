@@ -1,60 +1,76 @@
-import logging
-import os
+import asyncio
 
-import git
+from client import Client
+from lib.socket_handler import SocketHandler
+from lib.user_credentials import UserCredentialsGetter
+from sub_client import SubClient
 
-import config
-from lib.bot import Bot
 
-# ----------------  Получение обновлений
+async def run():
+    user_credentials = UserCredentialsGetter().get_user_credentials()
 
-if config.ENABLE_AUTO_UPDATES:
-    g = git.cmd.Git(os.getcwd())
-    try:
-        if g.pull() != 'Already up to date.':
-            print('Программа обновлена. Пожалуйста перезапустите скрипт')
-            print('Не забудьте выполнить команду pip install -r requirements.txt перед запуском')
-            exit()
-    except git.GitCommandError:
+    client_object = Client()
+    await client_object.login(user_credentials.login, user_credentials.password)
+    coo = await client_object.get_my_communities()
 
-        new_path = os.path.dirname(os.getcwd())
-        new_dir = new_path + '/amino-bot_NEW'
-        if not os.path.exists(new_dir):
-            os.mkdir(new_dir)
+    print("Choose a community to work in (you can choose only one for now): ")
+    i = 1
+    for item in coo.items:
+        print(str(i) + ' - ' + str(item.name))
+        i += 1
 
-        git.Git(new_dir).clone("https://github.com/ManKwang/amino-bot.git")
-
-        print('Репозиторий был клонирован в новую папку: ' + new_dir)
-        print('Используйте эту папку для работы с ботом')
-
-        os.startfile(new_dir + '/amino-bot')
-
+    coo_id = input('You chose: ')
+    if not coo_id or not coo_id.isnumeric():
+        print('Please provide a correct value')
         exit()
 
-# ---------------- !Получение обновлений
+    coo_id = int(coo_id) - 1
 
-# Initialize the bot
-bot = Bot()
+    print('You chose ' + str(coo.items[coo_id].name))
+
+    coo_id = coo.items[coo_id].communityId
+
+    client_object.allowed_communities.append(coo_id)
+
+    print()
+    print('Now choose chats to monitor')
+    print('You can choose more than one chat')
+    print('Please type it one by one')
+    print('Type nothing if you are done')
+
+    sub_client = SubClient(coo_id)
+    chats = await sub_client.get_my_chats()
+
+    i = 1
+    for item in chats.items:
+        print(str(i) + ' - ' + str(item.name))
+        i += 1
+
+    while True:
+        chat_id = input('Your chose: ')
+        if not chat_id:
+            break
+
+        if not chat_id.isnumeric():
+            print('Please enter a valid number')
+            continue
+
+        chat_id = int(chat_id) - 1
+        print('You added ' + str(chats.items[chat_id].name) + ' to the monitoring list')
+
+        chat_id = chats.items[chat_id].chatId
+
+        client_object.allowed_chats.append(chat_id)
+
+    if client_object.allowed_chats:
+        print('Done')
+    else:
+        print('You chose no chats. Working in a webhook mode.')
+
+    websocket_url = await client_object.get_webhook_url()
+    s_h = SocketHandler(client_object, websocket_url)
+    s_h.start()
+
 
 if __name__ == '__main__':
-    DIR_LOGS = os.getcwd() + '/logs'
-
-    if not os.path.exists(DIR_LOGS):
-        os.mkdir(DIR_LOGS)
-
-    DIR_LEN = len([name for name in os.listdir(DIR_LOGS) if os.path.isfile(os.path.join(DIR_LOGS, name))])
-
-    logging.basicConfig(
-        handlers=[logging.FileHandler(f"logs/log_{str(DIR_LEN + 1)}.txt", 'w', 'utf-8')],
-        level=logging.INFO,
-        format='%(asctime)s %(message)s',
-        datefmt='%d.%m.%Y %I:%M:%S')
-
-    print('STARTED')
-    logging.info('STARTED')
-    try:
-        bot.run()
-    except KeyboardInterrupt:
-        print("Бот завершил свою работу")
-        logging.info('STOPPED')
-        exit()
+    asyncio.run(run())
