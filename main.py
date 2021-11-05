@@ -1,16 +1,25 @@
 import asyncio
 
-from client import Client
+import client
 from lib.socket_handler import SocketHandler
-from lib.user_credentials import UserCredentialsGetter
+from lib.user_credentials import UserCredentialsProcessor
 from sub_client import SubClient
+from lib.exceptions import WrongPassword
 
 
 async def run():
-    user_credentials = UserCredentialsGetter().get_user_credentials()
+    user_credentials = UserCredentialsProcessor().get_user_credentials()
 
-    client_object = Client()
-    await client_object.login(user_credentials.login, user_credentials.password)
+    client_object = client.ClientObject()
+
+    try:
+        await client_object.login(user_credentials.login, user_credentials.password)
+    except WrongPassword as exception:
+        print(exception)
+        print('Try to rerun the script')
+        UserCredentialsProcessor().delete_user_credentials()
+        exit()
+
     coo = await client_object.get_my_communities()
 
     print("Choose a community to work in (you can choose only one for now): ")

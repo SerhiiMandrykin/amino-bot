@@ -8,10 +8,11 @@ class UserCredentials(NamedTuple):
     password: str
 
 
-class UserCredentialsGetter:
+class UserCredentialsProcessor:
     """
     This class will provide you with user credentials and save it
     """
+
     def __init__(self):
         self.file_path = os.getcwd() + '/user_credentials.json'
 
@@ -42,3 +43,6 @@ class UserCredentialsGetter:
         self.save_user_credentials(login, password)
 
         return UserCredentials(login=login, password=password)
+
+    def delete_user_credentials(self):
+        os.remove(self.file_path)

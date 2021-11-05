@@ -4,11 +4,11 @@ import threading
 
 import websocket
 
-from client import Client
+from client import ClientObject
 
 
 class SocketHandler:
-    def __init__(self, client: Client, socket_url, socket_trace=False):
+    def __init__(self, client: ClientObject, socket_url, socket_trace=False):
         """
         Build the websocket connection.
         client: client that owns the websocket connection.

@@ -1,3 +1,6 @@
+from typing import Optional
+
+
 class Communities:
     """
     Class contains list of communities
@@ -89,7 +92,9 @@ class Message:
     mediaValue - picture
     """
 
-    def __init__(self, author: User, message_text: str, message_id: str, from_id: str, chat_id: str):
+    def __init__(self, author: User, message_text: str, message_id: str, from_id: str, chat_id: str,
+                 community_id: Optional[str]):
+        self.community_id = community_id
         self.chat_id = chat_id
         self.from_id = from_id
         self.message_id = message_id
@@ -97,7 +102,7 @@ class Message:
         self.author = author
 
     @staticmethod
-    def parse_message(item):
+    def parse_message(item, community_id: Optional[str] = None):
         user = User.parse_user(item['author'])
         return Message(author=user, message_text=item['content'], message_id=item['messageId'], from_id=item['uid'],
-                       chat_id=item['threadId'])
+                       chat_id=item['threadId'], community_id=community_id)
