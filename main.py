@@ -1,10 +1,10 @@
 import asyncio
 
 import client
+from lib.exceptions import WrongPassword
 from lib.socket_handler import SocketHandler
 from lib.user_credentials import UserCredentialsProcessor
 from sub_client import SubClient
-from lib.exceptions import WrongPassword
 
 
 async def run():
@@ -72,7 +72,7 @@ async def run():
         client_object.allowed_chats.append(chat_id)
 
     if client_object.allowed_chats:
-        print('Done')
+        print('Done.')
     else:
         print('You chose no chats. Working in a webhook mode.')
 
