@@ -8,17 +8,15 @@ import config
 
 def main():
     if not config.LOG_TO_TELEGRAM:
-        print('Чтобы использовать телеграм бота вам необходимо включить лог в телеграм в файле config.py')
+        print('You need to enable log to telegram in config.py')
         exit()
 
     if not config.BOT_TOKEN or config.BOT_TOKEN == '':
-        print('Для начала укажите токен телеграм бота в файле config.py')
+        print('Please specify the bot token in config.py')
         exit()
 
-    print('Чтобы настроить чат, в который бот будет посылать логи, добавьте бота в этот чат')
-    print('Это так же может быть и лс')
-    print('После этого отправте в нужном чате текст /use_this_chat')
-    print('Скрипт автоматически сохранит ID чата')
+    print('Please use command /use_this_chat in the chat where you want to see logs')
+    print('The script will automatically save the chat id')
 
     bot = telebot.TeleBot(config.BOT_TOKEN)
 
@@ -38,9 +36,9 @@ def main():
         print()
         print('-----------------------')
         print()
-        print('Настройки успешно сохранены')
-        print('Если захотите изменить чат, заново запустите этот скрипт')
-        print('Если скрипт не остановился - сделайте это вручную )')
+        print('Successfully saved')
+        print('If you want to change the chat run this script again')
+        print('If the script is not stopped - do it manually')
         bot.stop_polling()
         exit()
 

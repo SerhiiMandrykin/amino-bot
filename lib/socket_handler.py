@@ -1,17 +1,20 @@
+import asyncio
 import json
 import threading
-import time
+
 import websocket
 
+from client import ClientObject
 
-class SocketHandler():
-    def __init__(self, client, socket_trace=False):
+
+class SocketHandler:
+    def __init__(self, client: ClientObject, socket_url, socket_trace=False):
         """
         Build the websocket connection.
         client: client that owns the websocket connection.
         """
-        websocket.enableTrace(True)
-        self.socket_url = "wss://ws1.narvii.com"
+
+        self.socket_url = socket_url
         self.client = client
         self.active = False
         self.headers = None
@@ -20,41 +23,39 @@ class SocketHandler():
 
         websocket.enableTrace(socket_trace)
 
-    def on_open(self):
-        pass
+    def on_open(self, a):
+        print('Opened a websocket...')
 
-    def on_close(self):
+    def on_close(self, a, b, c):
         self.active = False
 
         if self.reconnect:
             self.start()
-            print("reopened")
+            print("Reopened")
 
-        print("closed")
+        print("Closed")
 
-    def on_ping(self, data):
+    def on_ping(self, data, t):
         self.socket.sock.pong(data)
 
-    def handle_message(self, data):
-        self.client.handle_socket_message(data)
-        return
+    def handle_message(self, data, response):
+        asyncio.run(self.client.ping(response))
 
     def send(self, data):
         self.socket.send(data)
 
-    def start(self):
-        self.headers = {
-            "NDCDEVICEID": self.client.device_id,
-            "NDCAUTH": f"sid={self.client.sid}"
-        }
+    def on_error(self, data, message):
+        pass
 
+    def start(self):
         self.socket = websocket.WebSocketApp(
-            f"{self.socket_url}/?signbody={self.client.device_id}%7C{int(time.time() * 1000)}",
+            f"{self.socket_url}",
             on_message=self.handle_message,
             on_open=self.on_open,
             on_close=self.on_close,
             on_ping=self.on_ping,
-            header=self.headers
+            header=self.client.headers,
+            on_error=self.on_error
         )
 
         self.socket_thread = threading.Thread(target=self.socket.run_forever, kwargs={"ping_interval": 60})
