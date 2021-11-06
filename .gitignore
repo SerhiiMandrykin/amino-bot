@@ -8,3 +8,4 @@ test.py
 warning.txt
 *.bat
 options
+data/

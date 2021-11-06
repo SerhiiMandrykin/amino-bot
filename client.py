@@ -45,7 +45,7 @@ class ClientObject:
         response = json.loads(data)
         community_id = response['o']['ndcId']
 
-        chat_message = Message.parse_message(response['o']['chatMessage'], community_id)
+        chat_message = Message.parse_message(response['o']['chatMessage'], str(community_id))
         if chat_message.from_id == self.self_id or community_id not in self.allowed_communities \
                 or chat_message.chat_id not in self.allowed_chats:
             return
@@ -72,7 +72,7 @@ class ClientObject:
             return
 
         await self.send_message(community_id=community_id, chat_id=chat_message.chat_id,
-                                text=dialogflow_response.response_text)
+                                text=dialogflow_response.response_text, reply_to=chat_message.message_id)
 
     async def login(self, email, password):
         data = {
@@ -142,7 +142,7 @@ class ClientObject:
                 except:
                     raise UnexpectedException(response)
 
-    async def send_message(self, community_id, chat_id, text, message_type=0):
+    async def send_message(self, community_id, chat_id, text, message_type=0, reply_to: str = None):
         data = {
             "ndcId": f"x{community_id}",
             "threadId": chat_id,
@@ -154,8 +154,25 @@ class ClientObject:
                 "clientRefId": 0
             }
         }
+
+        if reply_to is not None:
+            data['message']['replyMessageId'] = reply_to
+
         async with aiohttp.ClientSession() as session:
             async with session.post(f"{self.interface}/add-chat-message", json=data, headers=self.headers) as result:
+                response = await result.text()
+                response = json.loads(response)
+                if response["code"] == 200:
+                    return response["code"]
+                else:
+                    raise UnexpectedException(response)
+
+    async def kick(self, community_id: str, user_id: str, chat_id: str, allow_rejoin: bool = True):
+        async with aiohttp.ClientSession() as session:
+            async with session.delete(
+                    f"{self.mobile_interface}/x{community_id}/s/chat/thread/{chat_id}/member"
+                    f"/{user_id}?allowRejoin={str(int(allow_rejoin))}",
+                    headers=self.mobile_headers) as result:
                 response = await result.text()
                 response = json.loads(response)
                 if response["code"] == 200:

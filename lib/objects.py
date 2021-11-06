@@ -93,16 +93,25 @@ class Message:
     """
 
     def __init__(self, author: User, message_text: str, message_id: str, from_id: str, chat_id: str,
-                 community_id: Optional[str]):
+                 community_id: Optional[str], has_reply: bool = False, reply_message=None):
         self.community_id = community_id
         self.chat_id = chat_id
         self.from_id = from_id
         self.message_id = message_id
         self.message_text = message_text
         self.author = author
+        self.has_reply = has_reply
+        self.reply_message: Optional[Message] = reply_message
 
     @staticmethod
     def parse_message(item, community_id: Optional[str] = None):
         user = User.parse_user(item['author'])
+        has_reply = False
+        reply_message = None
+        if 'replyMessage' in item['extensions'].keys():
+            has_reply = True
+            reply_message = Message.parse_message(item=item['extensions']['replyMessage'], community_id=community_id)
+
         return Message(author=user, message_text=item['content'], message_id=item['messageId'], from_id=item['uid'],
-                       chat_id=item['threadId'], community_id=community_id)
+                       chat_id=item['threadId'], community_id=community_id, has_reply=has_reply,
+                       reply_message=reply_message)
