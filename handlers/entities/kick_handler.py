@@ -22,18 +22,27 @@ class KickHandler(BaseHandler):
 
         if not message.has_reply:
             answer_text = "Вы должны ответить на сообщение пользователя которого хотите выкинуть из чата."
-            await self.answer(answer_text)
+            await self.answer(answer_text, needs_reply=True)
             return
 
         if message.from_id == message.reply_message.from_id:
             answer_text = "Себя кикать нельзя."
-            await self.answer(answer_text)
+            await self.answer(answer_text, needs_reply=True)
             return
 
         kick_user = message.reply_message.author.user_id
 
         if kick_user == self.client_object.self_id:
-            await self.answer('Меня нельзя кикать...')
+            await self.answer('Меня нельзя кикать...', needs_reply=True)
+            return
+
+        if not self.client_object.is_curator or not self.client_object.is_leader:
+            await self.answer('К сожалению, мне нужны права куратора или лидера чтобы я мог выкинуть из чата.',
+                              needs_reply=True)
+            return
+
+        if message.reply_message.author.is_curator or message.reply_message.author.is_leader:
+            await self.answer('Я не могу выгнать из чата куратора или лидера.', needs_reply=True)
             return
 
         if kick_user not in self.data_handler.data[message.community_id][message.chat_id].keys():

@@ -6,6 +6,9 @@ class MeHandler(BaseHandler):
     def _set_pattern(self):
         self.pattern = 'я'
 
+    def needs_reply(self):
+        return True
+
     async def handle(self, message: Message):
         await super().handle(message)
 

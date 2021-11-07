@@ -72,17 +72,24 @@ class Users:
 
 
 class User:
-    def __init__(self, user_id, nickname, profile_picture, user_level, reputation):
+    LEADER_ROLES = [100, 102]
+    CURATOR_ROLES = [101]
+
+    def __init__(self, user_id, nickname, profile_picture, user_level, reputation, is_leader=False, is_curator=False):
         self.user_id = user_id
         self.nickname = nickname
         self.profile_picture = profile_picture
         self.user_level = user_level
         self.reputation = reputation
+        self.is_leader = is_leader
+        self.is_curator = is_curator
 
     @staticmethod
     def parse_user(item):
+        is_leader = item['role'] in User.LEADER_ROLES
+        is_curator = item['role'] in User.CURATOR_ROLES
         return User(user_id=item['uid'], nickname=item['nickname'], profile_picture=item['icon'],
-                    user_level=item['level'], reputation=item['reputation'])
+                    user_level=item['level'], reputation=item['reputation'], is_leader=is_leader, is_curator=is_curator)
 
 
 class Message:

@@ -35,11 +35,20 @@ class ClientObject:
         self.last_action_time = 0
         self.handler_items = HandlerItems(self)
         self.message_processor = MessageProcessor(self.handler_items)
+        self.is_leader = False
+        self.is_curator = False
 
     def get_captcha(self):
         captcha = "".join(random.choices(string.ascii_uppercase + string.ascii_lowercase + "_-", k=462)).replace("--",
                                                                                                                  "-")
         return captcha
+
+    async def process_self_status(self):
+        result = await self.visit_user(community_id=str(self.allowed_communities[0]), user_id=self.self_id)
+        self_role = result['userProfile']['role']
+
+        self.is_leader = self_role in User.LEADER_ROLES
+        self.is_curator = self_role in User.CURATOR_ROLES
 
     async def ping(self, data):
         response = json.loads(data)
@@ -179,3 +188,24 @@ class ClientObject:
                     return response["code"]
                 else:
                     raise UnexpectedException(response)
+
+    async def visit_user(self, community_id: str, user_id: str):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                    f"{self.mobile_interface}/x{community_id}/s/user-profile/{user_id}?action=visit",
+                    headers=self.mobile_headers) as result:
+                response = await result.json()
+
+                if 'userProfile' not in response.keys():
+                    raise UnexpectedException(response)
+
+                return response
+
+    async def get_chat_thread(self, community_id: str, chat_id: str):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                    f"{self.mobile_interface}/x{community_id}/s/chat/thread/{chat_id}",
+                    headers=self.mobile_headers) as result:
+                response = await result.json()
+
+                return response

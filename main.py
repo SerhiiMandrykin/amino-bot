@@ -41,6 +41,15 @@ async def run():
 
     client_object.allowed_communities.append(coo_id)
 
+    await client_object.process_self_status()
+
+    if client_object.is_leader:
+        print('The user has leader status.')
+    elif client_object.is_curator:
+        print('The user has curator status.')
+    else:
+        print('The user has default status.')
+
     print()
     print('Now choose chats to monitor')
     print('You can choose more than one chat')
