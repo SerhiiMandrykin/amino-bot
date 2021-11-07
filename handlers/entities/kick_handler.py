@@ -1,5 +1,3 @@
-import asyncio
-
 from handlers.base_handler import BaseHandler
 from lib.objects import Message
 
@@ -17,33 +15,33 @@ class KickHandler(BaseHandler):
     def _works_in_chat(self) -> bool:
         return True
 
-    async def handle(self, message: Message):
+    async def handle(self, message: Message) -> bool:
         await super().handle(message)
 
         if not message.has_reply:
             answer_text = "Вы должны ответить на сообщение пользователя которого хотите выкинуть из чата."
             await self.answer(answer_text, needs_reply=True)
-            return
+            return True
 
         if message.from_id == message.reply_message.from_id:
             answer_text = "Себя кикать нельзя."
             await self.answer(answer_text, needs_reply=True)
-            return
+            return True
 
         kick_user = message.reply_message.author.user_id
 
         if kick_user == self.client_object.self_id:
             await self.answer('Меня нельзя кикать...', needs_reply=True)
-            return
+            return True
 
-        if not self.client_object.is_curator or not self.client_object.is_leader:
+        if not self.client_object.is_curator and not self.client_object.is_leader:
             await self.answer('К сожалению, мне нужны права куратора или лидера чтобы я мог выкинуть из чата.',
                               needs_reply=True)
-            return
+            return True
 
         if message.reply_message.author.is_curator or message.reply_message.author.is_leader:
             await self.answer('Я не могу выгнать из чата куратора или лидера.', needs_reply=True)
-            return
+            return True
 
         if kick_user not in self.data_handler.data[message.community_id][message.chat_id].keys():
             self.data_handler.data[message.community_id][message.chat_id][kick_user] = {
@@ -55,11 +53,11 @@ class KickHandler(BaseHandler):
         user_data = self.data_handler.data[message.community_id][message.chat_id][kick_user]
 
         if message.from_id in user_data['reporters']:
-            answer_text = f"{str(message.author.nickname)}, ты можешь использовать " \
+            answer_text = f"Вы можете использовать " \
                           f"эту функцию только один раз на один запрос."
 
-            await self.answer(answer_text)
-            return
+            await self.answer(answer_text, needs_reply=True)
+            return True
 
         user_data['amount'] += 1
         user_data['reporters'].append(message.from_id)
@@ -79,11 +77,11 @@ class KickHandler(BaseHandler):
                           f"После {self.TOTAL_AMOUNT} пользователь будет кикнут без возможности вернуться обратно " \
                           f"в чат."
 
-            await asyncio.sleep(3)
+            await self.client_object.delay_action.wait()
 
             await self.answer(answer_text)
 
-            return
+            return True
 
         self.data_handler.save_data()
 
@@ -92,3 +90,4 @@ class KickHandler(BaseHandler):
                       f"равно {self.REQUESTS_AMOUNT}."
 
         await self.answer(answer_text)
+        return True

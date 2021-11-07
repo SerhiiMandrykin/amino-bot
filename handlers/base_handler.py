@@ -28,7 +28,10 @@ class BaseHandler:
     def needs_reply(self):
         return False
 
-    async def handle(self, message: Message):
+    def check_intent(self) -> bool:
+        return False
+
+    async def handle(self, message: Message) -> bool:
         self.message = message
 
         if self._need_data():
@@ -38,6 +41,8 @@ class BaseHandler:
             if self._works_in_chat():
                 if message.chat_id not in self.data_handler.data[message.community_id].keys():
                     self.data_handler.data[message.community_id][message.chat_id] = {}
+
+        return False
 
     async def answer(self, answer_text: str, needs_reply=False):
         reply_to = None

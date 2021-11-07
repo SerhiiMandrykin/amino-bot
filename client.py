@@ -1,4 +1,3 @@
-import asyncio
 import json
 import random
 import string
@@ -8,6 +7,7 @@ import aiohttp
 
 from handlers.handler_items import HandlerItems
 from lib.client_data import ClientData
+from lib.delay_action import DelayAction
 from lib.devices import Device
 from lib.dialogflow_processor import ChatClient
 from lib.exceptions import *
@@ -31,12 +31,11 @@ class ClientObject:
         self.allowed_chats = []
         self.allowed_communities = []
         self.chat_client = ChatClient('bts-amino-umty')
-        self.time_delay = 5  # delay in seconds for sending messages
-        self.last_action_time = 0
         self.handler_items = HandlerItems(self)
         self.message_processor = MessageProcessor(self.handler_items)
         self.is_leader = False
         self.is_curator = False
+        self.delay_action = DelayAction()
 
     def get_captcha(self):
         captcha = "".join(random.choices(string.ascii_uppercase + string.ascii_lowercase + "_-", k=462)).replace("--",
@@ -65,17 +64,13 @@ class ClientObject:
 
         dialogflow_response = self.chat_client.get_response(chat_message.from_id, chat_message.message_text)
 
+        chat_message.intent = dialogflow_response.intent
+
         allowed_intents = ['obscene.warning']
         if dialogflow_response.intent not in allowed_intents and not has_trigger:
             return
 
-        time_diff = time.time() - self.last_action_time
-        print('Time diff is ' + str(int(time_diff)) + ' seconds')
-        if time_diff < self.time_delay:
-            print('Waiting for ' + str(self.time_delay - time_diff) + ' seconds')
-            await asyncio.sleep(self.time_delay - time_diff)
-
-        self.last_action_time = time.time()
+        await self.delay_action.wait()
 
         if await self.message_processor.process(chat_message):
             return
@@ -182,12 +177,8 @@ class ClientObject:
                     f"{self.mobile_interface}/x{community_id}/s/chat/thread/{chat_id}/member"
                     f"/{user_id}?allowRejoin={str(int(allow_rejoin))}",
                     headers=self.mobile_headers) as result:
-                response = await result.text()
-                response = json.loads(response)
-                if response["code"] == 200:
-                    return response["code"]
-                else:
-                    raise UnexpectedException(response)
+                response = await result.json()
+                return response
 
     async def visit_user(self, community_id: str, user_id: str):
         async with aiohttp.ClientSession() as session:
@@ -209,3 +200,27 @@ class ClientObject:
                 response = await result.json()
 
                 return response
+
+    async def warn(self, community_id: str, user_id: str, title: str = 'Custom', reason: str = None):
+        data = {
+            "uid": user_id,
+            "title": None,
+            "content": None,
+            "attachedObject": {
+                "objectId": user_id,
+                "objectType": 0
+            },
+            "penaltyType": 0,
+            "adminOpNote": {},
+            "noticeType": 7,
+            "timestamp": int(time.time() * 1000)
+        }
+        async with aiohttp.ClientSession() as session:
+            async with session.post(f"{self.mobile_interface}/x{community_id}/s/notice", json=data,
+                                    headers=self.mobile_headers) as result:
+                response = await result.json()
+                print(response)
+                if response["code"] == 200:
+                    return response
+                else:
+                    raise UnexpectedException(response)

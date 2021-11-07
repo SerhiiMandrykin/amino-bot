@@ -109,6 +109,7 @@ class Message:
         self.author = author
         self.has_reply = has_reply
         self.reply_message: Optional[Message] = reply_message
+        self.intent = None
 
     @staticmethod
     def parse_message(item, community_id: Optional[str] = None):

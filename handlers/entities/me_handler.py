@@ -17,3 +17,4 @@ class MeHandler(BaseHandler):
                       f"Уровень: {message.author.user_level}"
 
         await self.answer(answer_text)
+        return True

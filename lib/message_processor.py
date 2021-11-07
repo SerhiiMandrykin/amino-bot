@@ -13,13 +13,14 @@ class MessageProcessor:
             if not issubclass(type(item), BaseHandler):
                 continue
 
+            if item.check_intent() and message.intent == item.pattern:
+                return await item.handle(message)
+
             if item.is_regular_expression:
                 if re.match(item.pattern, message.message_text, re.IGNORECASE):
-                    await item.handle(message)
-                    return True
+                    return await item.handle(message)
 
             if message.message_text.lower() == item.pattern:
-                await item.handle(message)
-                return True
+                return await item.handle(message)
 
         return False
